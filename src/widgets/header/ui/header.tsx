@@ -3,6 +3,7 @@ import { Button } from "@/shared/ui/button";
 // import { Sheet, SheetContent, SheetTrigger } from "@/shared/ui/sheet"; // Mobile Menu
 // import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Sidebar } from "@/widgets/sidebar/ui/sidebar"; // 재사용
+import { WalletButton } from "@/features/wallet";
 
 export function Header() {
     return (
@@ -30,9 +31,7 @@ export function Header() {
 
                 {/* Right Side Actions */}
                 <div className="ml-auto flex items-center space-x-4">
-                    <Button size="sm" variant="outline">
-                        Connect Wallet
-                    </Button>{" "}
+                    <WalletButton />
                     {/* 나중에 Wagmi 연결 */}
                     {/* <Avatar className="h-8 w-8 cursor-pointer">
                         <AvatarImage src="https://github.com/shadcn.png" />
