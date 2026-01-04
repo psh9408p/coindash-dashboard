@@ -5,6 +5,12 @@ import { useState, type ReactNode } from "react";
 import { WagmiProvider } from "wagmi";
 
 import { config } from "@/shared/config/wagmi"; // 아까 만든 설정
+import { useAutoDisconnect } from "@/features/wallet";
+
+function WalletInactivityHandler({ children }: { children: ReactNode }) {
+    useAutoDisconnect();
+    return <>{children}</>;
+}
 
 export function Providers({ children }: { children: ReactNode }) {
     // 1. React Query 클라이언트 생성 (컴포넌트 생명주기 내에서 유지)
@@ -14,7 +20,9 @@ export function Providers({ children }: { children: ReactNode }) {
         // 2. Wagmi -> QueryClient 순서로 감싸줍니다.
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                {children}
+                <WalletInactivityHandler>
+                    {children}
+                </WalletInactivityHandler>
             </QueryClientProvider>
         </WagmiProvider>
     );
