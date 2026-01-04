@@ -2,17 +2,43 @@
 
 import { useAccount, useBalance } from "wagmi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Skeleton } from "@/shared/ui/skeleton"; // 로딩 UI용 (없으면 npx shadcn@latest add skeleton)
+import { Skeleton } from "@/shared/ui/skeleton";
 import { Wallet, CreditCard } from "lucide-react";
 import { formatBalance } from "@/shared/lib/format";
+import { useState, useEffect } from "react";
 
 export function WalletOverview() {
     const { address, isConnected } = useAccount();
+    const [mounted, setMounted] = useState(false);
+
+    // Hydration Mismatch 방지
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // 1. 잔고 조회 Hook
-    const { data, isLoading, isError } = useBalance({
+    const { data, isLoading } = useBalance({
         address: address,
     });
+
+    // 마운트 전에는 로딩 상태 표시 (서버 렌더링과 일치)
+    if (!mounted) {
+        return (
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                        Wallet Status
+                    </CardTitle>
+                    <Wallet className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold text-muted-foreground">
+                        Loading...
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
 
     // 2. 연결되지 않았을 때의 화면
     if (!isConnected) {

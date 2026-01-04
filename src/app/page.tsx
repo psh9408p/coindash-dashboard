@@ -4,24 +4,21 @@ import { SwapWidget } from "@/features/token-swap";
 
 export default function Home() {
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <h1 className="text-2xl font-bold tracking-tight">
                 Dashboard Overview
             </h1>
 
+            {/* Wallet Balance Cards */}
             <WalletOverview />
 
-            {/* Main Content Grid */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+            {/* Main Actions Grid */}
+            <div className="grid gap-6 md:grid-cols-2">
                 {/* Token Swap Widget */}
-                <div className="col-span-4 flex justify-center items-start">
-                    <SwapWidget />
-                </div>
+                <SwapWidget />
 
                 {/* Send Transaction Form */}
-                <div className="col-span-3">
-                    <SendTransactionForm />
-                </div>
+                <SendTransactionForm />
             </div>
         </div>
     );

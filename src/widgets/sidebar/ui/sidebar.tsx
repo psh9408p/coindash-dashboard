@@ -38,7 +38,7 @@ export function Sidebar({ className }: { className?: string }) {
                             className="w-full justify-start"
                             asChild
                         >
-                            <Link href="/wallet">
+                            <Link href="/my-wallet">
                                 <Wallet className="mr-2 h-4 w-4" />
                                 My Wallet
                             </Link>
