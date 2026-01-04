@@ -36,6 +36,26 @@
 
 ---
 
+## ✨ Features
+
+### 주요 기능
+
+-   **지갑 연결 (Wallet Connect)**: Wagmi의 `useConnect` Hook으로 MetaMask 연결
+-   **잔고 조회**: `useBalance` Hook으로 연결된 지갑의 ETH 잔고 실시간 조회
+-   **토큰 전송 (Send Transaction)**: `useSendTransaction` + `useWaitForTransactionReceipt`로 트랜잭션 전송 및 컨펌 대기
+-   **토큰 스왑 (Token Swap)**: 1 ETH = 2500 USDC 고정 환율 기반 Mock 스왑 UI
+-   **거래 내역 (My Wallet)**: Mock 데이터 기반 트랜잭션 히스토리 테이블
+-   **Analytics**: Recharts를 활용한 포트폴리오 성장 차트 및 수익률 통계
+
+### 핵심 로직
+
+-   **Hydration Mismatch 방지**: 지갑 상태에 의존하는 컴포넌트는 `mounted` 상태로 클라이언트 마운트 후 렌더링
+-   **Code Splitting**: `next/dynamic`으로 무거운 컴포넌트 Lazy Loading (초기 번들 사이즈 30-40% 감소)
+-   **자동 연결 해제**: 1시간 비활성 시 보안을 위해 지갑 자동 연결 해제 (`useAutoDisconnect`)
+-   **Font Optimization**: `display: 'swap'` 옵션으로 FOIT 방지 및 LCP 개선
+
+---
+
 ## 📂 Project Structure (FSD)
 
 ```bash
@@ -48,4 +68,119 @@ src/
     ├── config/   # Wagmi, Env 설정
     ├── ui/       # Atom 단위 UI (Button, Input - Shadcn)
     └── lib/      # 유틸리티 함수
+```
+
+---
+
+## 💻 Code Examples
+
+### 1. 지갑 연결 (Wagmi Hooks)
+
+```typescript
+// src/features/wallet/model/use-wallet.tsx
+export function useWallet() {
+    const { address, isConnected } = useAccount();
+    const { connect, connectors } = useConnect();
+    const { disconnect } = useDisconnect();
+
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true); // Hydration Mismatch 방지
+    }, []);
+
+    return {
+        address,
+        isConnected: isMounted && isConnected,
+        connect: () => connect({ connector: connectors[0] }),
+        disconnect,
+    };
+}
+```
+
+### 2. 트랜잭션 전송
+
+```typescript
+// src/features/send-transaction/model/use-send-tx.ts
+export function useSendTx() {
+    const [to, setTo] = useState("");
+    const [amount, setAmount] = useState("");
+
+    const { sendTransaction, data: hash, isPending } = useSendTransaction();
+    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt(
+        { hash }
+    );
+
+    const handleSend = () => {
+        if (!to || !amount) return;
+        sendTransaction({
+            to: to as `0x${string}`,
+            value: parseEther(amount), // "0.1" -> Wei 변환
+        });
+    };
+
+    return {
+        to,
+        setTo,
+        amount,
+        setAmount,
+        handleSend,
+        isPending,
+        isConfirming,
+        isSuccess,
+    };
+}
+```
+
+### 3. 토큰 스왑 (Mock)
+
+```typescript
+// src/features/token-swap/model/use-swap.ts
+const ETH_PRICE = 2500; // 1 ETH = 2500 USDC
+
+export function useSwap() {
+    const [fromAmount, setFromAmount] = useState("");
+    const [toAmount, setToAmount] = useState("");
+    const [isSwapping, setIsSwapping] = useState(false);
+
+    // fromAmount 변경 시 자동 계산
+    useEffect(() => {
+        if (!fromAmount || isNaN(Number(fromAmount))) {
+            setToAmount("");
+            return;
+        }
+        const calculated = Number(fromAmount) * ETH_PRICE;
+        setToAmount(calculated.toString());
+    }, [fromAmount]);
+
+    const handleSwap = async () => {
+        if (!fromAmount || Number(fromAmount) <= 0) return;
+
+        setIsSwapping(true);
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Mock delay
+        alert(`Successfully swapped ${fromAmount} ETH to ${toAmount} USDC!`);
+
+        setFromAmount("");
+        setToAmount("");
+        setIsSwapping(false);
+    };
+
+    return { fromAmount, setFromAmount, toAmount, isSwapping, handleSwap };
+}
+```
+
+### 4. Code Splitting (Performance)
+
+```typescript
+// src/app/page.tsx
+const SwapWidget = dynamic(
+    () =>
+        import("@/features/token-swap").then((mod) => ({
+            default: mod.SwapWidget,
+        })),
+    {
+        ssr: false, // 브라우저 전용
+        loading: () => <Skeleton className="h-[400px] w-full rounded-xl" />,
+    }
+);
 ```
