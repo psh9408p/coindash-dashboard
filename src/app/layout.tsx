@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Header } from "@/widgets/header/ui/header"; // Import
-import { Sidebar } from "@/widgets/sidebar/ui/sidebar"; // Import
-import { MSWProvider } from "@/app/_providers/msw-provider"; // Import
-const inter = Inter({ subsets: ["latin"] });
+import { Header } from "@/widgets/header/ui/header";
+import { Sidebar } from "@/widgets/sidebar/ui/sidebar";
+// import { MSWProvider } from "@/app/_providers/msw-provider";
+
+const inter = Inter({
+    subsets: ["latin"],
+    display: "swap",
+});
 
 export const metadata: Metadata = {
     title: "CoinDash",

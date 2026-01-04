@@ -1,6 +1,42 @@
-import { WalletOverview } from "@/widgets/wallet-overview";
-import { SendTransactionForm } from "@/features/send-transaction";
-import { SwapWidget } from "@/features/token-swap";
+"use client";
+
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/shared/ui/skeleton";
+
+// Code Splitting: Lazy load heavy components
+const WalletOverview = dynamic(
+    () =>
+        import("@/widgets/wallet-overview").then((mod) => ({
+            default: mod.WalletOverview,
+        })),
+    {
+        ssr: false,
+        loading: () => <Skeleton className="h-[180px] w-full rounded-xl" />,
+    }
+);
+
+const SwapWidget = dynamic(
+    () =>
+        import("@/features/token-swap").then((mod) => ({
+            default: mod.SwapWidget,
+        })),
+    {
+        ssr: false,
+        loading: () => (
+            <Skeleton className="h-[400px] w-full max-w-[480px] rounded-xl" />
+        ),
+    }
+);
+
+const SendTransactionForm = dynamic(
+    () =>
+        import("@/features/send-transaction").then((mod) => ({
+            default: mod.SendTransactionForm,
+        })),
+    {
+        loading: () => <Skeleton className="h-[400px] w-full rounded-xl" />,
+    }
+);
 
 export default function Home() {
     return (
